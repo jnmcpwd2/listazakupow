@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">listazakupow</string>
+    <string name="hint_name">Wpisz nazwę produktu...</string>
+    <string name="hint_quantity">Ilość</string>
+    <string name="add">DODAJ</string>
+    <string name="clear">WYCZYŚĆ LISTĘ</string>
+    <string name="error_name">Nazwa produktu nie może być pusta</string>
+    <string name="error_quantity">Ilość musi być > 0</string>
+    <string name="dialog_text">Czy na pewno chcesz usunąć wszystkie produkty?</string>
+</resources>
