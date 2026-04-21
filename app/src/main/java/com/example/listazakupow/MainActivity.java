@@ -5,10 +5,12 @@ import android.widget.*;
 import androidx.appcompat.app.*;
 import androidx.recyclerview.widget.*;
 import android.app.AlertDialog;
+import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
 
     EditText nameInput, quantityInput;
+    Spinner spinner;
     DatabaseHelper db;
     ProductAdapter adapter;
 
@@ -17,15 +19,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        nameInput = findViewById(R.id.productNameInput);
-        quantityInput = findViewById(R.id.productQuantityInput);
-        Button addBtn = findViewById(R.id.addButton);
-        Button clearBtn = findViewById(R.id.clearButton);
-        RecyclerView rv = findViewById(R.id.recyclerView);
+        nameInput = findViewById(R.id.etProductName);
+        quantityInput = findViewById(R.id.etProductQuantity);
+        spinner = findViewById(R.id.spinnerCategory);
+
+        Button addBtn = findViewById(R.id.btnAdd);
+        Button clearBtn = findViewById(R.id.btnClear);
+        RecyclerView rv = findViewById(R.id.rvProducts);
 
         db = new DatabaseHelper(this);
 
-        adapter = new ProductAdapter(db.getAllProducts());
+        adapter = new ProductAdapter(db.getAllProducts(), id -> {
+            db.deleteProduct(id);
+            adapter.setProducts(db.getAllProducts());
+        });
+
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
@@ -36,18 +44,19 @@ public class MainActivity extends AppCompatActivity {
     private void addProduct() {
         String name = nameInput.getText().toString();
         String qtyStr = quantityInput.getText().toString();
+        String category = spinner.getSelectedItem().toString();
 
         if(name.isEmpty()) {
-            Toast.makeText(this, R.string.error_name, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Podaj nazwę", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if(qtyStr.isEmpty() || Integer.parseInt(qtyStr) <= 0) {
-            Toast.makeText(this, R.string.error_quantity, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zła ilość", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        db.addProduct(name, Integer.parseInt(qtyStr));
+        db.addProduct(name, Integer.parseInt(qtyStr), category);
         adapter.setProducts(db.getAllProducts());
 
         nameInput.setText("");
@@ -56,12 +65,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void clearList() {
         new AlertDialog.Builder(this)
-                .setMessage(R.string.dialog_text)
-                .setPositiveButton("TAK", (d, w) -> {
+                .setMessage(R.string.delete_confirm)
+                .setPositiveButton(R.string.yes, (d,w)->{
                     db.clearAll();
-                    adapter.setProducts(db.getAllProducts());
+                    adapter.setProducts(new ArrayList<>());
                 })
-                .setNegativeButton("ANULUJ", null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 }

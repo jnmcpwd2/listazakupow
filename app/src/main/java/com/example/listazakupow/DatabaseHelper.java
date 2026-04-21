@@ -8,22 +8,26 @@ import java.util.*;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
-        super(context, "shopping.db", null, 1);
+        super(context, "shopping.db", null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE products (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, quantity INTEGER)");
+        db.execSQL("CREATE TABLE products (_id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, quantity INTEGER, category TEXT DEFAULT 'Inne')");
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS products");
+        onCreate(db);
+    }
 
-    public void addProduct(String name, int quantity) {
+    public void addProduct(String name, int quantity, String category) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("quantity", quantity);
+        values.put("category", category);
         db.insert("products", null, values);
     }
 
@@ -36,10 +40,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             list.add(new Product(
                     cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getInt(2)
+                    cursor.getInt(2),
+                    cursor.getString(3)
             ));
         }
         return list;
+    }
+
+    public void deleteProduct(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete("products", "_id=?", new String[]{String.valueOf(id)});
     }
 
     public void clearAll() {

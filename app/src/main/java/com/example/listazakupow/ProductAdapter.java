@@ -1,16 +1,22 @@
 package com.example.listazakupow;
 
 import android.view.*;
-import android.widget.TextView;
+import android.widget.*;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.*;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
-    private List<Product> products;
+    public interface OnDeleteClick {
+        void onDelete(int id);
+    }
 
-    public ProductAdapter(List<Product> products) {
+    private List<Product> products;
+    private OnDeleteClick listener;
+
+    public ProductAdapter(List<Product> products, OnDeleteClick listener) {
         this.products = products;
+        this.listener = listener;
     }
 
     public void setProducts(List<Product> products) {
@@ -19,12 +25,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView name, quantity;
+        TextView name, quantity, category;
+        Button delete;
 
         public ViewHolder(View view) {
             super(view);
-            name = view.findViewById(R.id.nameText);
-            quantity = view.findViewById(R.id.quantityText);
+            name = view.findViewById(R.id.tvProductName);
+            quantity = view.findViewById(R.id.tvQuantity);
+            category = view.findViewById(R.id.tvCategory);
+            delete = view.findViewById(R.id.btnDelete);
         }
     }
 
@@ -38,8 +47,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Product p = products.get(position);
+
         holder.name.setText(p.name);
         holder.quantity.setText("Ilość: " + p.quantity);
+        holder.category.setText("Kategoria: " + p.category);
+
+        holder.delete.setOnClickListener(v -> listener.onDelete(p.id));
     }
 
     @Override
